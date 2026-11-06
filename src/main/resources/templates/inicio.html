@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="es">
+<head th:replace="~{plantillas/plantilla :: head}"></head>
+<body>
+<header th:replace="~{plantillas/plantilla :: header}"></header>
+
+<div class="container-fluid">
+    <main class="container col-md-10 p-4 shadow-lg p-3 my-4 bg-body-tertiary rounded">
+
+        <h1 class="text-center mb-4" th:text="${contenido}"></h1>
+
+        <!-- ========== VENDEDOR INACTIVO ========== -->
+        <div th:if="${inactivo}" class="alert alert-danger text-center" role="alert">
+            <h4><i class="fas fa-ban"></i> Cuenta Inactiva</h4>
+            <p class="mb-0">
+                Tu cuenta ha sido desactivada por el Administrador.
+                Por favor, acude al Municipio para más información.
+            </p>
+            <p class="mt-3 mb-0" th:if="${vendedor.fechaInactivacion != null}">
+                <small>
+                    Fecha de inactivación:
+                    <strong th:text="${#temporals.format(vendedor.fechaInactivacion, 'dd/MM/yyyy HH:mm')}"></strong>
+                </small>
+            </p>
+        </div>
+
+        <!-- ========== VISTA DE VENDEDOR ========== -->
+        <div th:if="${!esAdmin and (inactivo == null or !inactivo)}" sec:authorize="hasRole('VENDEDOR')">
+
+            <!-- Tarjetas resumen -->
+            <div class="row text-center mb-4">
+                <div class="col-md-6">
+                    <div class="card bg-primary text-white shadow">
+                        <div class="card-body">
+                            <h3 class="card-title">
+                                <i class="fas fa-calendar-day"></i> Ventas de Hoy
+                            </h3>
+                            <h2 th:text="${ventasHoy != null ? ventasHoy.size() : 0}"></h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card bg-success text-white shadow">
+                        <div class="card-body">
+                            <h3 class="card-title">
+                                <i class="fas fa-dollar-sign"></i> Total del Día
+                            </h3>
+                            <h2>
+                                $<span th:text="${totalHoy != null ? totalHoy : '0.00'}"></span>
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones rápidas -->
+            <div class="row text-center mb-4">
+                <div class="col-md-4">
+                    <a th:href="@{/venta/registrar}" class="btn btn-primary btn-lg w-100 py-3">
+                        <i class="fas fa-plus-circle fa-2x d-block mb-2"></i>
+                        Registrar Venta
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a th:href="@{/venta/mis-ventas}" class="btn btn-info btn-lg w-100 py-3 text-white">
+                        <i class="fas fa-receipt fa-2x d-block mb-2"></i>
+                        Mis Ventas
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a th:href="@{/venta/mis-ventas/pdf}" class="btn btn-danger btn-lg w-100 py-3">
+                        <i class="fas fa-file-pdf fa-2x d-block mb-2"></i>
+                        Descargar PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- Estado del vendedor -->
+            <div class="alert alert-info">
+                <h5><i class="fas fa-info-circle"></i> Información de tu cuenta</h5>
+                <ul class="mb-0">
+                    <li><strong>Nombre:</strong> <span th:text="${vendedor.nombre}"></span></li>
+                    <li><strong>Usuario:</strong> <span th:text="${vendedor.username}"></span></li>
+                    <li th:if="${vendedor.ultimaVenta != null}">
+                        <strong>Última venta:</strong>
+                        <span th:text="${#temporals.format(vendedor.ultimaVenta, 'dd/MM/yyyy HH:mm')}"></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ========== VISTA DE ADMIN ========== -->
+        <div sec:authorize="hasRole('ADMIN')">
+
+            <!-- Tarjetas resumen -->
+            <div class="row text-center mb-4">
+                <div class="col-md-6">
+                    <div class="card bg-primary text-white shadow">
+                        <div class="card-body">
+                            <h3 class="card-title">
+                                <i class="fas fa-list"></i> Total de Ventas Registradas
+                            </h3>
+                            <h2 th:text="${totalVentas != null ? totalVentas : 0}"></h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card bg-success text-white shadow">
+                        <div class="card-body">
+                            <h3 class="card-title">
+                                <i class="fas fa-dollar-sign"></i> Recaudado Hoy
+                            </h3>
+                            <h2>$<span th:text="${totalHoy != null ? totalHoy : '0.00'}"></span></h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones de admin -->
+            <h5 class="mt-4 mb-3"><i class="fas fa-cogs"></i> Gestión del Sistema</h5>
+            <div class="row text-center">
+                <div class="col-md-3 mb-3">
+                    <a th:href="@{/vendedor/ver_lista}" class="btn btn-outline-dark w-100 py-3">
+                        <i class="fas fa-users fa-2x d-block mb-2"></i>
+                        Vendedores
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a th:href="@{/bloque/ver_lista}" class="btn btn-outline-dark w-100 py-3">
+                        <i class="fas fa-layer-group fa-2x d-block mb-2"></i>
+                        Bloques
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a th:href="@{/producto/ver_lista}" class="btn btn-outline-dark w-100 py-3">
+                        <i class="fas fa-box fa-2x d-block mb-2"></i>
+                        Productos
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a th:href="@{/venta/ver_lista}" class="btn btn-outline-dark w-100 py-3">
+                        <i class="fas fa-shopping-cart fa-2x d-block mb-2"></i>
+                        Ventas
+                    </a>
+                </div>
+            </div>
+
+            <!-- Descarga PDF general -->
+            <div class="text-center mt-3">
+                <a th:href="@{/venta/pdf}" class="btn btn-danger">
+                    <i class="fas fa-file-pdf"></i> Descargar Reporte General de Ventas (PDF)
+                </a>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<footer th:replace="~{plantillas/plantilla::footer}"></footer>
+</body>
+</html>

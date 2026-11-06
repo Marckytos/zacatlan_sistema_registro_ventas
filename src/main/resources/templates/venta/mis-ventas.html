@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{plantillas/plantilla :: head}"></head>
+<body>
+<header th:replace="~{plantillas/plantilla :: header}"></header>
+
+<div class="container-fluid">
+    <main class="container col-md-11 p-4 shadow-lg p-3 my-4 bg-body-tertiary rounded">
+        <h1 class="text-center mb-4" th:text="${contenido}"></h1>
+
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <a th:href="@{/venta/registrar}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nueva Venta
+            </a>
+            <a th:href="@{/venta/mis-ventas/pdf}" class="btn btn-danger">
+                <i class="fas fa-file-pdf"></i> Descargar mis ventas (PDF)
+            </a>
+        </div>
+
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            Recuerda: <strong>no puedes modificar ni eliminar</strong> ventas ya registradas.
+            Si hay un error, contacta al Administrador.
+        </div>
+
+        <table th:if="${!lista.isEmpty()}" class="table table-striped table-hover table-sm">
+            <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Fecha</th>
+                <th>Producto</th>
+                <th>Bloque</th>
+                <th>Cantidad</th>
+                <th>Total</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="v, iter : ${lista}">
+                <td th:text="${iter.count}"></td>
+                <td th:text="${v.fecha != null ? #temporals.format(v.fecha, 'dd/MM/yyyy HH:mm') : ''}"></td>
+                <td th:text="${v.producto != null ? v.producto.nombre : ''}"></td>
+                <td th:text="${v.producto != null && v.producto.bloque != null ? v.producto.bloque.nombre : ''}"></td>
+                <td th:text="${v.cantidad}"></td>
+                <td>$<span th:text="${#numbers.formatDecimal(v.total, 1, 2)}"></span></td>
+            </tr>
+            </tbody>
+            <tfoot class="table-secondary">
+            <tr>
+                <th colspan="5" class="text-end">Total acumulado:</th>
+                <th>$<span th:text="${#numbers.formatDecimal(totalAcumulado, 1, 2)}"></span></th>
+            </tr>
+            </tfoot>
+        </table>
+
+        <div th:if="${lista.isEmpty()}" class="alert alert-warning text-center">
+            <i class="fas fa-inbox"></i> Aún no tienes ventas registradas.
+        </div>
+    </main>
+</div>
+
+<footer th:replace="~{plantillas/plantilla::footer}"></footer>
+</body>
+</html>

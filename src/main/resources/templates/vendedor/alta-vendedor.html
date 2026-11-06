@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{plantillas/plantilla :: head}"></head>
+<body>
+<header th:replace="~{plantillas/plantilla :: header}"></header>
+
+<div class="container-fluid">
+    <main class="container col-md-8 p-4 shadow-lg p-3 my-4 bg-body-tertiary rounded">
+        <h1 class="text-center mb-4" th:text="${contenido}"></h1>
+
+        <div th:if="${error}" class="alert alert-danger">
+            <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+        </div>
+
+        <form th:object="${vendedor}" method="post"
+              th:action="${vendedor.id != null} ? @{/vendedor/actualizar-vendedor} : @{/vendedor/salvar-vendedor}">
+
+            <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+                Verifique los siguientes errores:
+                <ul class="mb-0">
+                    <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+                </ul>
+            </div>
+
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre completo:</label>
+                <input type="text" id="nombre"
+                       th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid' : ''"
+                       class="form-control" th:field="*{nombre}" required>
+                <div class="invalid-feedback" th:errors="*{nombre}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="username" class="form-label">Username (para login):</label>
+                <input type="text" id="username"
+                       th:classappend="${#fields.hasErrors('username')} ? 'is-invalid' : ''"
+                       class="form-control" th:field="*{username}" required>
+                <div class="invalid-feedback" th:errors="*{username}"></div>
+                <small class="text-muted">Mínimo 4 caracteres. Único en el sistema.</small>
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">
+                    Contraseña
+                    <span th:if="${vendedor.id != null}" class="text-muted">
+                        (dejar en blanco para conservar la actual)
+                    </span>
+                </label>
+                <input type="password" id="password" class="form-control"
+                       th:field="*{password}"
+                       th:required="${vendedor.id == null}">
+                <small class="text-muted">Mínimo 6 caracteres.</small>
+            </div>
+
+            <input type="hidden" th:field="*{id}"/>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+                <a th:href="@{/vendedor/ver_lista}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </main>
+</div>
+
+<footer th:replace="~{plantillas/plantilla::footer}"></footer>
+</body>
+</html>

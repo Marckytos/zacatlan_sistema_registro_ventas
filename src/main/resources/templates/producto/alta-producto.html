@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{plantillas/plantilla :: head}"></head>
+<body>
+<header th:replace="~{plantillas/plantilla :: header}"></header>
+
+<div class="container-fluid">
+    <main class="container col-md-8 p-4 shadow-lg p-3 my-4 bg-body-tertiary rounded">
+        <h1 class="text-center mb-4" th:text="${contenido}"></h1>
+
+        <form th:action="@{/producto/salvar-producto}" th:object="${producto}" method="post">
+
+            <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+                Verifique los siguientes errores:
+                <ul class="mb-0">
+                    <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+                </ul>
+            </div>
+
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre del producto:</label>
+                <input type="text" id="nombre" class="form-control"
+                       th:field="*{nombre}" required
+                       placeholder="Ej. Tacos de guisado, Blusa bordada...">
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="precio" class="form-label">Precio:</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="number" id="precio" step="0.01" min="0.01"
+                               class="form-control" th:field="*{precio}" required
+                               placeholder="0.00">
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="bloque" class="form-label">Bloque:</label>
+                    <select id="bloque" class="form-control" th:field="*{bloque.id}" required>
+                        <option value="">-- Seleccione un bloque --</option>
+                        <option th:each="b : ${bloques}"
+                                th:value="${b.id}"
+                                th:text="${b.nombre}"></option>
+                    </select>
+                </div>
+            </div>
+
+            <div th:if="${producto.id == null}" class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                El producto se creará <strong>pendiente de aprobación</strong>.
+                Deberás aprobarlo después desde la lista para que los vendedores puedan venderlo.
+            </div>
+
+            <input type="hidden" th:field="*{id}"/>
+            <input type="hidden" th:field="*{aprobado}"/>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+                <a th:href="@{/producto/ver_lista}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </main>
+</div>
+
+<footer th:replace="~{plantillas/plantilla::footer}"></footer>
+</body>
+</html>

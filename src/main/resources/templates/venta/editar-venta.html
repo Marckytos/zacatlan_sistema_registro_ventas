@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{plantillas/plantilla :: head}"></head>
+<body>
+<header th:replace="~{plantillas/plantilla :: header}"></header>
+
+<div class="container-fluid">
+    <main class="container col-md-8 p-4 shadow-lg p-3 my-4 bg-body-tertiary rounded">
+        <h1 class="text-center mb-4" th:text="${contenido}"></h1>
+
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Solo se puede modificar la cantidad.</strong>
+            El vendedor, producto y fecha no se pueden cambiar
+            (por trazabilidad del sistema).
+        </div>
+
+        <form th:action="@{/venta/actualizar}" th:object="${venta}" method="post">
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Fecha:</label>
+                    <input type="text" class="form-control" readonly
+                           th:value="${venta.fecha != null ? #temporals.format(venta.fecha, 'dd/MM/yyyy HH:mm') : ''}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Vendedor:</label>
+                    <input type="text" class="form-control" readonly
+                           th:value="${venta.vendedor != null ? venta.vendedor.nombre : ''}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Producto:</label>
+                    <input type="text" class="form-control" readonly
+                           th:value="${venta.producto != null ? venta.producto.nombre : ''}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Precio unitario:</label>
+                    <input type="text" class="form-control" readonly
+                           th:value="${venta.producto != null ? '$' + #numbers.formatDecimal(venta.producto.precio, 1, 2) : ''}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="cantidad" class="form-label">Cantidad (editable):</label>
+                    <input type="number" id="cantidad" class="form-control"
+                           th:field="*{cantidad}" min="1" required
+                           oninput="calcularTotal()">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Nuevo total:</label>
+                    <input type="text" id="preview-total" class="form-control" readonly
+                           th:value="${'$' + #numbers.formatDecimal(venta.total, 1, 2)}">
+                </div>
+            </div>
+
+            <input type="hidden" th:field="*{id}"/>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Guardar cambios
+                </button>
+                <a th:href="@{/venta/ver_lista}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </main>
+</div>
+
+<footer th:replace="~{plantillas/plantilla::footer}"></footer>
+
+<script th:inline="javascript">
+    const precioUnitario = /*[[${venta.producto != null ? venta.producto.precio : 0}]]*/ 0;
+
+    function calcularTotal() {
+        const cantidad = parseInt(document.getElementById('cantidad').value);
+        const preview = document.getElementById('preview-total');
+        if (!isNaN(cantidad) && cantidad > 0) {
+            preview.value = '$' + (precioUnitario * cantidad).toFixed(2);
+        } else {
+            preview.value = '$0.00';
+        }
+    }
+</script>
+</body>
+</html>
